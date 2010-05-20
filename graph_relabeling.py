@@ -8,6 +8,7 @@
 #
 # Imports
 #
+
 from __future__ import division
 from graph_helpers import *
 from numpy import *
@@ -21,6 +22,7 @@ import sys
 #
 # Variables
 #
+
 debug = False                                       # Whether or not to print out debugging messages
 
 
@@ -28,11 +30,11 @@ debug = False                                       # Whether or not to print ou
 # Functions
 # Refer to graph_helpers module for more function definitions
 #
-def calc_score_map(adjMatrix):
-    """Calculates the score lists and the standard label map based on BFS and
-    vertex valence."""
+
+def calc_canonical_form(adjMatrix):
+    """Calculates the score lists based on BFS and vertex valence."""
     
-    # Calculate the degree of each node, this is the degree class
+    # Calculate the degree of each vertex for reference
     weightMap = {}
     for i in range(0, adjMatrix.shape[0]):
         sum = 0
@@ -258,6 +260,11 @@ def calc_score_map(adjMatrix):
             counter = counter + 1
             
     return (returnMap, nodeMap)
+    
+def generate_map(adjMatrix, canonicalForm):
+    """Calculates all the possible automorphic mappings based on the adjacency
+    matrix and the graph's canonical form as calculated by calc_canonical_form."""
+    pass
 
 def compare_score_sets(weightMap1, weightMap2):
     """Compares two input weight maps checking that the score structure
@@ -317,12 +324,12 @@ if __name__ == "__main__":
         for n in range(1, max_mult+1):
             for i in range(41, 42):
                 am1 = read_into_matrix("C:/Users/Ameer/My Documents/Komodo Edit Projects/GraphRelabeling/graphs/iso_r001_s"+str(20*n)+".A"+str(i).zfill(2))
-                m1 = calc_score_map(am1)
+                m1 = calc_canonical_form(am1)
                 wm1 = m1[0]
                 nm1 = m1[1]
     
                 am2 = read_into_matrix("C:/Users/Ameer/My Documents/Komodo Edit Projects/GraphRelabeling/graphs/iso_r001_s"+str(20*n)+".B"+str(i).zfill(2))
-                m2 = calc_score_map(am2)
+                m2 = calc_canonical_form(am2)
                 wm2 = m2[0]
                 nm2 = m2[1]
     
@@ -378,8 +385,8 @@ if __name__ == "__main__":
             #print graph1
             graph2 = generate_random_graph(nodes)
             #print graph2
-            score1 = calc_score_map(graph1)[0]
-            score2 = calc_score_map(graph2)[0]
+            score1 = calc_canonical_form(graph1)[0]
+            score2 = calc_canonical_form(graph2)[0]
             compare = compare_score_sets(score1, score2)
             if compare:
                 print "ISOMORPHIC GRAPH DETECTED @", count
