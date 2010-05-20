@@ -26,10 +26,11 @@ debug = False                                       # Whether or not to print ou
 
 #
 # Functions
+# Refer to graph_helpers module for more function definitions
 #
 def calc_score_map(adjMatrix):
-    """Calculates the standard label map based on node weights assigned by
-    node degree."""
+    """Calculates the score lists and the standard label map based on BFS and
+    vertex valence."""
     
     # Calculate the degree of each node, this is the degree class
     weightMap = {}
@@ -302,103 +303,105 @@ def compare_score_sets(weightMap1, weightMap2):
 # Test/Debug
 if __name__ == "__main__":
     start = time()                                          # Keep track of execution time
+    execiso = False                                         # Execute test on isomorphic graphs?
+    execrand = True                                         # Execute test on random graphs?
 
-    """
-    max_mult = 1                                            # Real max is 5 when using the graph db
-    max_num = 0                                             # Real max is 99 when using the graph db
+    if execiso:
+        max_mult = 1                                            # Real max is 5 when using the graph db
+        max_num = 0                                             # Real max is 99 when using the graph db
     
-    failed = []                                             # List of tuples of failed graph sets (adj matrices)
-    failedId = []                                           # List of the failed graphs to identify the proper one
-    results = []                                            # List of boolean results of comparison
-    resultsMap = []
-    for n in range(1, max_mult+1):
-        for i in range(41, 42):
-            am1 = read_into_matrix("C:/Users/Ameer/My Documents/Komodo Edit Projects/GraphRelabeling/graphs/iso_r001_s"+str(20*n)+".A"+str(i).zfill(2))
-            m1 = calc_score_map(am1)
-            wm1 = m1[0]
-            nm1 = m1[1]
-
-            am2 = read_into_matrix("C:/Users/Ameer/My Documents/Komodo Edit Projects/GraphRelabeling/graphs/iso_r001_s"+str(20*n)+".B"+str(i).zfill(2))
-            m2 = calc_score_map(am2)
-            wm2 = m2[0]
-            nm2 = m2[1]
-
-            resultBuff = compare_score_sets(wm1, wm2)
-            results.append(resultBuff)
-            resultsMapBuff = compare_matrices(am1, nm1, am2, nm2)
-            resultsMap.append(resultsMapBuff)
-            
-            if resultBuff == False:
-                failed.append((am1, am2))
-                failedId.append(i)
-                count1 = 0
-                for q in range(0, am1.shape[0]):
-                    for k in range(0, am1.shape[1]):
-                        if am1[q][k] == 1:
-                            count1 = count1 +1
-                count2 = 0
-                for q in range(0, am2.shape[0]):
-                    for k in range(0, am2.shape[1]):
-                        if am2[q][k] == 1:
-                            count2 = count2 +1
-                print "NOT ISOMORPHIC : ", i, "; ", count1, "edges vs ", count2, "edges."
-            
-    print "Small Topology Comparison ("+str(len(results))+" graph sets): "
-    print results.count(True)*100/len(results), "% isomorphic."
-    print "Small Mapping Comparison ("+str(len(results))+" graph sets): "
-    print resultsMap.count(True)*100/len(resultsMap), "% mappings identified."
+        failed = []                                             # List of tuples of failed graph sets (adj matrices)
+        failedId = []                                           # List of the failed graphs to identify the proper one
+        results = []                                            # List of boolean results of comparison
+        resultsMap = []
+        for n in range(1, max_mult+1):
+            for i in range(41, 42):
+                am1 = read_into_matrix("C:/Users/Ameer/My Documents/Komodo Edit Projects/GraphRelabeling/graphs/iso_r001_s"+str(20*n)+".A"+str(i).zfill(2))
+                m1 = calc_score_map(am1)
+                wm1 = m1[0]
+                nm1 = m1[1]
     
-    if failed:
-        minimap = {0: "A", 1: "B"}
-        print "Writing failed graphs to file..."
+                am2 = read_into_matrix("C:/Users/Ameer/My Documents/Komodo Edit Projects/GraphRelabeling/graphs/iso_r001_s"+str(20*n)+".B"+str(i).zfill(2))
+                m2 = calc_score_map(am2)
+                wm2 = m2[0]
+                nm2 = m2[1]
+    
+                resultBuff = compare_score_sets(wm1, wm2)
+                results.append(resultBuff)
+                resultsMapBuff = compare_matrices(am1, nm1, am2, nm2)
+                resultsMap.append(resultsMapBuff)
+                
+                if resultBuff == False:
+                    failed.append((am1, am2))
+                    failedId.append(i)
+                    count1 = 0
+                    for q in range(0, am1.shape[0]):
+                        for k in range(0, am1.shape[1]):
+                            if am1[q][k] == 1:
+                                count1 = count1 +1
+                    count2 = 0
+                    for q in range(0, am2.shape[0]):
+                        for k in range(0, am2.shape[1]):
+                            if am2[q][k] == 1:
+                                count2 = count2 +1
+                    print "NOT ISOMORPHIC : ", i, "; ", count1, "edges vs ", count2, "edges."
+                
+        print "Small Topology Comparison ("+str(len(results))+" graph sets): "
+        print results.count(True)*100/len(results), "% isomorphic."
+        print "Small Mapping Comparison ("+str(len(results))+" graph sets): "
+        print resultsMap.count(True)*100/len(resultsMap), "% mappings identified."
+    
+        if failed:
+            minimap = {0: "A", 1: "B"}
+            print "Writing failed graphs to file..."
+            count = 0
+            for s in range(0, len(failed)):
+                for g in minimap:
+                    filepath = "./failed_out/"+str(failedId[count]).zfill(2)+str(minimap[g])+".dot"
+                    print "Writing %s" % filepath
+                    f = open(filepath, 'w')
+                    f.write(write_to_dot(failed[s][g]))
+                    f.close()
+                count = count + 1
+    
+    if execrand:
+        # Settings
         count = 0
-        for s in range(0, len(failed)):
-            for g in minimap:
-                filepath = "./failed_out/"+str(failedId[count]).zfill(2)+str(minimap[g])+".dot"
-                print "Writing %s" % filepath
-                f = open(filepath, 'w')
-                f.write(write_to_dot(failed[s][g]))
-                f.close()
+        nodes_min = 10
+        nodes_max = 50
+        iterations = 1
+        
+        while count < iterations:
+            random.seed()
+            nodes = random.randint(nodes_min, nodes_max)
+            graph1 = generate_random_graph(nodes)
+            #print graph1
+            graph2 = generate_random_graph(nodes)
+            #print graph2
+            score1 = calc_score_map(graph1)[0]
+            score2 = calc_score_map(graph2)[0]
+            compare = compare_score_sets(score1, score2)
+            if compare:
+                print "ISOMORPHIC GRAPH DETECTED @", count
+                filepath1 = "./iso_graphs/"+str(count)+"A.matrix"
+                f1 = open(filepath1, 'w')
+                f1.write(graph1)
+                f1.close
+                filepath2 = "./iso_graphs/"+str(count)+"B.matrix"
+                f2 = open(filepath2, 'w')
+                f2.write(graph2)
+                f2.close
+                filepath3 = "./iso_graphs/"+str(count)+"A.graphdb"
+                f3 = open(filepath3, 'w')
+                f3.write(write_to_vflib(graph1))
+                f3.close
+                filepath4 = "./iso_graphs/"+str(count)+"B.graphdb"
+                f4 = open(filepath4, 'w')
+                f4.write(write_to_vflib(graph2))
+                f4.close
             count = count + 1
-    """
-    
-    # Settings
-    count = 0
-    nodes_min = 10
-    nodes_max = 50
-    iterations = 1
-    
-    while count < iterations:
-        random.seed()
-        nodes = random.randint(nodes_min, nodes_max)
-        graph1 = generate_random_graph(nodes)
-        #print graph1
-        graph2 = generate_random_graph(nodes)
-        #print graph2
-        score1 = calc_score_map(graph1)[0]
-        score2 = calc_score_map(graph2)[0]
-        compare = compare_score_sets(score1, score2)
-        if compare:
-            print "ISOMORPHIC GRAPH DETECTED @", count
-            filepath1 = "./iso_graphs/"+str(count)+"A.matrix"
-            f1 = open(filepath1, 'w')
-            f1.write(graph1)
-            f1.close
-            filepath2 = "./iso_graphs/"+str(count)+"B.matrix"
-            f2 = open(filepath2, 'w')
-            f2.write(graph2)
-            f2.close
-            filepath3 = "./iso_graphs/"+str(count)+"A.graphdb"
-            f3 = open(filepath3, 'w')
-            f3.write(write_to_vflib(graph1))
-            f3.close
-            filepath4 = "./iso_graphs/"+str(count)+"B.graphdb"
-            f4 = open(filepath4, 'w')
-            f4.write(write_to_vflib(graph2))
-            f4.close
-        count = count + 1
-        if count%10 == 0:
-            print count/iterations, "% complete"
-            sys.stdout.flush()
-    
+            if count%10 == 0:
+                print count/iterations, "% complete"
+                sys.stdout.flush()
+                
     print "Finished in "+str(time()-start)+" sec."
