@@ -196,3 +196,29 @@ def nonUniqueSublistsAreEmpty(lis, dic):
         return True
     except KeyError:
         print "Sublist check failed, ensure dictionary/list coordination."
+
+
+#
+# Log Functions
+#
+
+def log_graph(base_name, adj_matrix1, adj_matrix2):
+    """Logs a graph's adjacency matrix and graphdb format graphs to a file
+    in the specified log_directory directory as specified by the global
+    variable."""
+    
+    f1 = open(log_dir + base_name + "A.matrix", 'w')
+    f1.write(graph1)
+    f1.close
+    
+    f2 = open(log_dir + base_name + "B.matrix", 'w')
+    f2.write(graph2)
+    f2.close
+    
+    f3 = open(log_dir + base_name + "A.graphdb", 'w')
+    f3.write(write_to_vflib(graph1))
+    f3.close
+    
+    f4 = open(log_dir + base_name + "B.graphdb", 'w')
+    f4.write(write_to_vflib(graph2))
+    f4.close
