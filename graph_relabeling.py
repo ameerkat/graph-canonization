@@ -25,7 +25,6 @@ import sys
 #
 
 debug = False                                       # Whether or not to print out debugging messages
-log_dir = "./iso_graphs/"
 
 
 #
@@ -144,28 +143,41 @@ def generate_map(g, am):
     count = 0
     while x:
         same = []
-        max = x.keys()[0]
+        min = x.keys()[0]
         # Find Max
         for i in x:
-            if x[i] > x[max]:
-                max = i
+            if x[i] < x[min]:
+                min = i
         
         # Find all with the same value
         for i in x:
-            if x[i] == x[max]:
+            if x[i] == x[min]:
                 same.append(i)
         
         # Score to order the same values
         samevals = {}
         for s in same:
-            # If the adjacency matrix contains a connection to a node
-            # already in the map then use that as a value to sort the nodes
-            # in the 'same' list
-            samevals[s] = [-1]
-            for c in range(0, am.shape[1]):
-                if am[s][c] == 1 and c in map:
-                    samevals[s].append(map[c])
-            samevals[s].sort()
+            # Rather do BFS to find the first values of the nearest connected
+            # nodes
+            samevals[s] = []
+            fringe = [s]
+            visited = [s]
+            while fringe:
+                buffer = []
+                fringeCopy = copy(fringe)
+                fringe = []
+                for searchNode in fringeCopy:
+                    if map.has_key(searchNode):
+                        buffer.append(map[searchNode])
+                    else:
+                        buffer.append(-1)
+                    for conn in range(0, am.shape[1]):
+                        # Push adjacent non visited nodes onto fringe
+                        if am[searchNode][conn] == 1 and not conn in visited:
+                            fringe.append(conn)
+                            visited.append(conn)
+                buffer.sort()
+                samevals[s].append(copy(buffer))
         
         # Now sort and map
         while samevals:
@@ -187,7 +199,7 @@ if __name__ == "__main__":
     execrand = False                                         # Execute test on random graphs?
 
     if execiso:
-        max_mult = 4                                            # Real max is 5 when using the graph db
+        max_mult = 1                                            # Real max is 5 when using the graph db
         max_num = 99                                            # Real max is 99 when using the graph db
     
         failed = []                                             # List of tuples of failed graph sets (adj matrices)
@@ -205,7 +217,17 @@ if __name__ == "__main__":
                 resultBuff = compare_score_sets(m1, m2)
                 results.append(resultBuff)
                 
-                resultsMap.append(compare_matrices(am1, generate_map(m1, am1), am2, generate_map(m2, am2)))
+                rm = compare_matrices(am1, generate_map(m1, am1), am2, generate_map(m2, am2))
+                resultsMap.append(rm)
+                if not rm:
+                    print "MAPPING FAILED : ", n*20, " vertex graph : #", i
+                    f1 = open("FAILEDA.dot", "w")
+                    f1.write(write_to_dot(am1))
+                    f1.close()
+                    f2 = open("FAILEDB.dot", "w")
+                    f2.write(write_to_dot(am2))
+                    f2.close()                
+                    log_graph("FAILED_"+str(n*20)+"_"+str(i), am1, am2)
                 
                 if resultBuff == False:
                     failed.append((m1, m2))

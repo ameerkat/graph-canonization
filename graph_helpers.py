@@ -16,6 +16,8 @@ from pygraph.classes.graph import graph
 from pygraph.readwrite.dot import write
 import random
 
+log_dir = "./iso_graphs/"
+
 #
 # Functions
 #
@@ -142,6 +144,7 @@ def compare_matrices(adjMatrix1, nodeMap1, adjMatrix2, nodeMap2):
             
             # Reverse lookup the col/row mapping on matrix2 and compare connections
             if adjMatrix1[i][j] != adjMatrix2[nodeMap2_rev[r]][nodeMap2_rev[c]]:
+                print "EDGE ", i, ":", j, " FAILED TO MAP TO ", nodeMap2_rev[r], ":", nodeMap2_rev[c]
                 return False                        # If they aren't equal then return false
             
     return True                                     # Otherwise if we looped through everything
@@ -208,17 +211,17 @@ def log_graph(base_name, adj_matrix1, adj_matrix2):
     variable."""
     
     f1 = open(log_dir + base_name + "A.matrix", 'w')
-    f1.write(graph1)
+    f1.write(adj_matrix1)
     f1.close
     
     f2 = open(log_dir + base_name + "B.matrix", 'w')
-    f2.write(graph2)
+    f2.write(adj_matrix2)
     f2.close
     
     f3 = open(log_dir + base_name + "A.graphdb", 'w')
-    f3.write(write_to_vflib(graph1))
+    f3.write(write_to_vflib(adj_matrix1))
     f3.close
     
     f4 = open(log_dir + base_name + "B.graphdb", 'w')
-    f4.write(write_to_vflib(graph2))
+    f4.write(write_to_vflib(adj_matrix2))
     f4.close
