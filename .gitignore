@@ -1,0 +1,7 @@
+*.dot
+*.png
+*.pyc
+*.kpf
+failed_out/
+graphs/
+iso_graphs/
