@@ -33,6 +33,25 @@ debug = False                                       # Whether or not to print ou
 #
 
 def calc_canonical_form(adjMatrix):
+    """Calculates the canonical form from an adjacency matrix."""
+
+    # Calculate the degree of each vertex for reference
+    degreeMap = {}
+    for i in range(0, adjMatrix.shape[0]):
+        sum = 0
+        for j in range(0, adjMatrix.shape[1]):
+            sum = sum + adjMatrix[i][j]
+        degreeMap[i] = sum
+    andLists = {}
+    for vertex in degreeMap:
+        andLists[vertex] = []
+        for connection in range(0, adjMatrix.shape[1]):
+                if adjMatrix[vertex][connection] == 1:
+                    andLists[vertex].append(degreeMap[connection])
+        andLists[vertex].sort()
+    return andLists
+
+def calc_complex_canonical_form(adjMatrix):
     """Calculates the score lists based on BFS and vertex valence."""
     
     # Calculate the degree of each vertex for reference
@@ -199,7 +218,7 @@ if __name__ == "__main__":
     execrand = False                                         # Execute test on random graphs?
 
     if execiso:
-        max_mult = 1                                            # Real max is 5 when using the graph db
+        max_mult = 5                                            # Real max is 5 when using the graph db
         max_num = 99                                            # Real max is 99 when using the graph db
     
         failed = []                                             # List of tuples of failed graph sets (adj matrices)
@@ -217,6 +236,7 @@ if __name__ == "__main__":
                 resultBuff = compare_score_sets(m1, m2)
                 results.append(resultBuff)
                 
+                """
                 rm = compare_matrices(am1, generate_map(m1, am1), am2, generate_map(m2, am2))
                 resultsMap.append(rm)
                 if not rm:
@@ -228,6 +248,7 @@ if __name__ == "__main__":
                     f2.write(write_to_dot(am2))
                     f2.close()                
                     log_graph("FAILED_"+str(n*20)+"_"+str(i), am1, am2)
+                """
                 
                 if resultBuff == False:
                     failed.append((m1, m2))
@@ -236,8 +257,8 @@ if __name__ == "__main__":
                 
         print "Topology Comparison ("+str(len(results))+" graph sets): "
         print results.count(True)*100/len(results), "% isomorphic."
-        print "Mapping Comparison ("+str(len(resultsMap))+" graph sets): "
-        print resultsMap.count(True)*100/len(resultsMap), "% mappings identified."
+        """print "Mapping Comparison ("+str(len(resultsMap))+" graph sets): "
+        print resultsMap.count(True)*100/len(resultsMap), "% mappings identified."""""
     
     if execrand:
         # Settings
